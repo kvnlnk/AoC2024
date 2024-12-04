@@ -30,6 +30,28 @@ public class Solver : ISolver
 
     public string GetPartTwoSolution()
     {
-        throw new NotImplementedException();
+        var sum = 0;
+        var processMul = true;
+
+        foreach (Match match in Regex.Matches(string.Join(string.Empty, _list), FullPattern))
+        {
+            var value = match.Groups[0].Value;
+            switch (value)
+            {
+                case "don't()":
+                    processMul = false;
+                    continue;
+                case "do()":
+                    processMul = true;
+                    continue;
+            }
+
+            if (processMul)
+            {
+                sum += Convert.ToInt32(match.Groups[1].Value) * Convert.ToInt32(match.Groups[2].Value);
+            }
+        }
+
+        return sum.ToString();
     }
 }
