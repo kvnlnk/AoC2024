@@ -1,23 +1,40 @@
 ﻿using System.Globalization;
+using AoC2024.Common;
 using AoC2024.Day01;
+
 
 class Program
 {
     public static void Main()
     {
         Directory.SetCurrentDirectory(@"..\..\..\");
-        var inputReader = new InputReader("01");
-        var solver = new Solver(inputReader.ReadFile());
-        
-        
-        Console.WriteLine("Solving Part 1:");
-        Console.WriteLine(solver.GetPartOneSolution());
 
-        Console.WriteLine("Solving Part 2:");
-        Console.WriteLine(solver.GetPartTwoSolution());
+        var solvers = new Dictionary<int, Func<ISolver>>
+        {
+            { 1, () => new AoC2024.Day01.Solver(new InputReader("01").ReadFile()) },
+            { 2, () => new AoC2024.Day02.Solver(new InputReader("02").ReadFile()) },
+            { 3, () => new AoC2024.Day03.Solver(new InputReader("03").ReadFile()) },
+            { 4, () => new AoC2024.Day04.Solver(new InputReader("04").ReadFile()) },
+        };
 
-        var inputReader2 = new InputReader("02");
-        var solver2 = new AoC2024.Day02.Solver(inputReader2.ReadFile());
-        solver2.GetPartOneSolution();
+        foreach (var day in solvers.Keys)
+        {
+            Console.WriteLine($"--- Solving Day {day:D2} ---");
+            var solver = solvers[day]();
+            try
+            {
+                Console.WriteLine("Part 1:");
+                Console.WriteLine(solver.GetPartOneSolution());
+            
+                Console.WriteLine("Part 2:");
+                Console.WriteLine(solver.GetPartTwoSolution());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Not fully implemented yet.");
+                
+            }
+            
+        }
     }
 }
