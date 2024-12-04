@@ -24,8 +24,8 @@ class Program
             try
             {
                 Console.WriteLine("Part 1: " + solver.GetPartOneSolution());
-            
                 Console.WriteLine("Part 2: " + solver.GetPartTwoSolution());
+                Console.WriteLine();
             }
             catch (Exception e)
             {
