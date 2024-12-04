@@ -23,11 +23,9 @@ class Program
             var solver = solvers[day]();
             try
             {
-                Console.WriteLine("Part 1:");
-                Console.WriteLine(solver.GetPartOneSolution());
+                Console.WriteLine("Part 1: " + solver.GetPartOneSolution());
             
-                Console.WriteLine("Part 2:");
-                Console.WriteLine(solver.GetPartTwoSolution());
+                Console.WriteLine("Part 2: " + solver.GetPartTwoSolution());
             }
             catch (Exception e)
             {
