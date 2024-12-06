@@ -1,12 +1,13 @@
-﻿using AoC2024.Common;
+﻿using System.Threading.Channels;
+using AoC2024.Common;
 
 namespace AoC2024.Day05;
 
 public class Solver : ISolver
 {
-    private List<string> _list;
-    private List<List<int>> _ruleList = [];
-    private List<List<int>> _listOfPages = [];
+    private readonly List<string> _list;
+    private readonly List<List<int>> _ruleList = [];
+    private readonly List<List<int>> _listOfPages = [];
 
     public Solver(List<string> list)
     {
@@ -38,7 +39,44 @@ public class Solver : ISolver
 
     public string GetPartOneSolution()
     {
-        throw new NotImplementedException();
+        var sum = 0;
+        
+        // try with first list of pages
+        for (var p = 0; p < _listOfPages.Count; p++)
+        {
+
+            var valid = true;
+            for (var i = 0; i < _listOfPages[p].Count; i++)
+            {
+                
+                // Get all rules for the current page
+                var pageRules = _ruleList.Where(rule => rule[0] == _listOfPages[p][i]).ToList();
+
+
+                for (var j = 0; j < _listOfPages[p].Count; j++)
+                {
+                    foreach (var rule in pageRules)
+                    {
+                        if (_listOfPages[p][j] == rule[1])
+                        {
+
+                            // Index of page > Index of rule
+                            if (i > j)
+                            {
+                                valid = false;
+                            }
+                        }
+                    }
+                }
+            }
+            if (valid)
+            {
+                sum += _listOfPages[p][_listOfPages[p].Count / 2];
+            }
+
+        }
+
+        return sum.ToString();
     }
 
     public string GetPartTwoSolution()
