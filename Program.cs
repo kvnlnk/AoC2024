@@ -19,6 +19,7 @@ class Program
             { 3, () => new AoC2024.Day03.Solver(new InputReader("03").ReadFile()) },
             { 4, () => new AoC2024.Day04.Solver(new InputReader("04").ReadFile()) },
             { 5, () => new AoC2024.Day05.Solver(new InputReader("05").ReadFile()) },
+            { 6, () => new AoC2024.Day06.Solver(new InputReader("06").ReadFile()) },
         };
 
         foreach (var day in solvers.Keys)
