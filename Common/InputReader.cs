@@ -1,4 +1,7 @@
-﻿namespace AoC2024.Day01;
+﻿using System.Collections.Generic;
+using System.IO;
+
+namespace AoC2024.Day01;
 
 public class InputReader
 {
