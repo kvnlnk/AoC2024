@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AoC2024.Common;
+﻿using AoC2024.Common;
 
 namespace AoC2024.Day04;
 
@@ -134,10 +132,4 @@ public class Solver : ISolver
     {
         return i >= 0 && i < _grid.GetLength(0) && j >= 0 && j < _grid.GetLength(1);
     }
-}
-
-internal class Direction()
-{
-    public int X { get; set; }
-    public int Y { get; set; }
 }
