@@ -58,7 +58,6 @@ public class Solver : ISolver
             {
                 // Add position to hashset to count distinct positions later
                 _distinctPositions.Add(_guard.Position);
-                _grid.SetValue('X', _guard.Position.Row, _guard.Position.Column);
 
                 // Update position of the guard
                 _guard.Position.Row += _directions[directionIndex].Row;
