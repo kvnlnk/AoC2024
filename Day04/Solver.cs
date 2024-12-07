@@ -9,22 +9,22 @@ public class Solver : ISolver
 
     private readonly Direction[] _directionsPart1 =
     [
-        new() { X = -1, Y = 0 }, // North
-        new() { X = -1, Y = 1 }, // North-East
-        new() { X = 0, Y = 1 }, // East
-        new() { X = 1, Y = 1 }, // South-East
-        new() { X = 1, Y = 0 }, // South
-        new() { X = 1, Y = -1 }, // South-West
-        new() { X = 0, Y = -1 }, // West
-        new() { X = -1, Y = -1 } // North-West
+        new() { Row = -1, Column = 0 }, // North
+        new() { Row = -1, Column = 1 }, // North-East
+        new() { Row = 0, Column = 1 }, // East
+        new() { Row = 1, Column = 1 }, // South-East
+        new() { Row = 1, Column = 0 }, // South
+        new() { Row = 1, Column = -1 }, // South-West
+        new() { Row = 0, Column = -1 }, // West
+        new() { Row = -1, Column = -1 } // North-West
     ];
 
     private readonly Direction[] _directionsPart2 =
     [
-        new() { X = -1, Y = -1 }, // North-West
-        new() { X = 1, Y = 1 }, // South-East
-        new() { X = -1, Y = 1 }, // North-East
-        new() { X = 1, Y = -1 } // South-West
+        new() { Row = -1, Column = -1 }, // North-West
+        new() { Row = 1, Column = 1 }, // South-East
+        new() { Row = -1, Column = 1 }, // North-East
+        new() { Row = 1, Column = -1 } // South-West
         
     ];
 
@@ -105,10 +105,10 @@ public class Solver : ISolver
         if (nextLetter == Word.Length) return true;
         
         // Check next char
-        if (CheckBounds(i + direction.X, j + direction.Y) &&
-            Word[nextLetter] == _grid[i + direction.X, j + direction.Y])
+        if (CheckBounds(i + direction.Row, j + direction.Column) &&
+            Word[nextLetter] == _grid[i + direction.Row, j + direction.Column])
         {
-            return CheckDirection(nextLetter + 1, i + direction.X, j + direction.Y, direction);
+            return CheckDirection(nextLetter + 1, i + direction.Row, j + direction.Column, direction);
         }
 
         return false;
@@ -117,14 +117,14 @@ public class Solver : ISolver
     private bool CheckDirection(int i, int j)
     {
         // Check bounds for each direction from starting point
-        if (_directionsPart2.Any(direction => !CheckBounds(i + direction.X, j+direction.Y)))
+        if (_directionsPart2.Any(direction => !CheckBounds(i + direction.Row, j+direction.Column)))
         {
             return false;
         }
         
         // Checks if any pattern fully matches the values in the grid based on the set directions
         return _pattern.Any(pattern => pattern.Select((value, index) => new { value, index }).
-            All(c => c.value == _grid[i + _directionsPart2[c.index].X, j + _directionsPart2[c.index].Y]));
+            All(c => c.value == _grid[i + _directionsPart2[c.index].Row, j + _directionsPart2[c.index].Column]));
     }
 
 
