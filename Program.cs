@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using AoC2024.Common;
+﻿using AoC2024.Common;
 using AoC2024.Day01;
 
 

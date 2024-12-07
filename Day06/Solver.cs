@@ -1,4 +1,5 @@
-﻿using AoC2024.Common;
+﻿using System.Threading.Channels;
+using AoC2024.Common;
 
 namespace AoC2024.Day06;
 
@@ -6,18 +7,19 @@ public class Solver : ISolver
 {
     private readonly List<string> _list;
     private readonly char[,] _grid;
-    
+    private readonly HashSet<Position> _distinctPositions = [];
+
     private readonly Direction[] _directions =
     [
-        new() { X = -1, Y = 0 }, // North
-        new() { X = 0, Y = 1 }, // East
-        new() { X = 1, Y = 0 }, // South
-        new() { X = 0, Y = -1 }, // West
+        new() { Row = -1, Column = 0 }, // North
+        new() { Row = 0, Column = 1 }, // East
+        new() { Row = 1, Column = 0 }, // South
+        new() { Row = 0, Column = -1 }, // West
     ];
 
     private Guard _guard;
-    
-    
+
+
     public Solver(List<string> list)
     {
         _list = list;
@@ -36,41 +38,51 @@ public class Solver : ISolver
                 {
                     _guard = new Guard
                     {
-                        Position = new Position {X=i, Y=j},
+                        Position = new Position { Row = i, Column = j },
                         Direction = _directions[0] // Facing north first
                     };
-
                 }
             }
         }
     }
+
     public string GetPartOneSolution()
     {
-        for (var i = 0; i < _grid.GetLength(0); i++)
+        var directionIndex = 0;
+
+        while (CheckBounds(_guard.Position.Row, _guard.Position.Column))
         {
-            for (var j = 0; j < _grid.GetLength(1); j++)
+            // Check if # is blocking the way for the guard
+            if ((char)_grid.GetValue(_guard.Position.Row + _directions[directionIndex].Row,
+                    _guard.Position.Column + _directions[directionIndex].Column)! != '#')
             {
-                Console.Write(_grid.GetValue(i, j));
+                // Add position to hashset to count distinct positions later
+                _distinctPositions.Add(_guard.Position);
+                _grid.SetValue('X', _guard.Position.Row, _guard.Position.Column);
+
+                // Update position of the guard
+                _guard.Position.Row += _directions[directionIndex].Row;
+                _guard.Position.Column += _directions[directionIndex].Column;
             }
-
-            Console.WriteLine();
+            else
+            {
+                // Change direction if # is blocking the way
+                directionIndex = (directionIndex + 1) % 4;
+            }
         }
 
-        while (true)
-        {
-            if (_guard.Direction.)
-        }
-        
-        Console.WriteLine(_guard.Position.X  + " " + _guard.Position.Y);
-        Console.WriteLine(_guard.Direction.X + " " + _guard.Direction.Y);
-        return "";
+        return (_distinctPositions.Count + 1).ToString();
     }
 
     public string GetPartTwoSolution()
     {
         throw new NotImplementedException();
     }
-    
+
+    private bool CheckBounds(int i, int j)
+    {
+        return i > 0 && i < _grid.GetLength(0) - 1 && j > 0 && j < _grid.GetLength(1) - 1;
+    }
 }
 
 internal class Guard
@@ -81,6 +93,21 @@ internal class Guard
 
 internal class Position
 {
-    public int X { get; set; }
-    public int Y { get; set; }
+    public int Row { get; set; }
+    public int Column { get; set; }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Position position)
+        {
+            return false;
+        }
+
+        return Row.Equals(position.Row) && Column.Equals(position.Column);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Row, Column);
+    }
 }
