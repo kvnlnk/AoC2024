@@ -1,6 +1,7 @@
 ﻿using AoC2024.Common;
 using AoC2024.Day01;
 
+namespace AoC2024;
 
 class Program
 {
@@ -17,6 +18,7 @@ class Program
             { 5, () => new AoC2024.Day05.Solver(new InputReader("05").ReadFile()) },
             { 6, () => new AoC2024.Day06.Solver(new InputReader("06").ReadFile()) },
             { 7, () => new AoC2024.Day07.Solver(new InputReader("07").ReadFile()) },
+            { 9, () => new AoC2024.Day09.Solver(new InputReader("09").ReadFile()) },
         };
 
         foreach (var day in solvers.Keys)
