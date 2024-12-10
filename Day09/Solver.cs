@@ -7,7 +7,6 @@ public class Solver : ISolver
     private readonly List<string> _list;
     private readonly List<string> _diskMap = [];
     private readonly List<string> _blockList = [];
-    private readonly List<string> _compactedBlocks = [];
     
     public Solver(List<string> list)
     {
@@ -28,27 +27,16 @@ public class Solver : ISolver
     {
         long checksum = 0;
         GetIndividualBlocks();
-        Console.WriteLine(string.Join(", ", _blockList));
-        Console.WriteLine();
         CompactIndividualBlocks();
-        Console.WriteLine(string.Join(", ", _compactedBlocks));
-        var compactedBlocksAsString = string.Join("", _compactedBlocks);
 
-        for (var i = 0; i < _compactedBlocks.Count; i++)
+        // Calculate checksum using blocklist after being compacted
+        for (var i = 0; i < _blockList.Count; i++)
         {
-            checksum += i * Convert.ToInt64(_compactedBlocks[i]);
-        }
-        /*
-        for (var i = 0; i < compactedBlocksAsString.Length; i++)
-        {
-            if (compactedBlocksAsString[i].ToString() != " ")
+            if (_blockList[i] != ".")
             {
-                Console.WriteLine("Rechnung: " + i * Convert.ToInt64(compactedBlocksAsString[i].ToString()));
-                checksum += (i * Convert.ToInt64(compactedBlocksAsString[i].ToString()));
-                Console.WriteLine("Checksum: " + checksum);
+                checksum += i * Convert.ToInt64(_blockList[i]);   
             }
         }
-        */
         return checksum.ToString();
     }
 
@@ -57,7 +45,6 @@ public class Solver : ISolver
         var id = 0;
         for (var i = 0; i < _diskMap.Count; i += 2)
         {
-            // id soll nur hoch gehen, wenn auch zahlen eingefügt wurden nd nicht auch wenn punkt eingefügt wurden sind, muss noch angepasst werden-
             for (var j = 0; j < Convert.ToInt32(_diskMap[i]); j++)
             {
                 _blockList.Add(id.ToString());
@@ -76,9 +63,7 @@ public class Solver : ISolver
                     _blockList.Add(".");
                 }
             }
-
             id++;
-
         }
     }
 
@@ -90,23 +75,23 @@ public class Solver : ISolver
         {
             if (_blockList[i] == ".")
             {
-                while (_blockList[_blockList.Count-1] == ".")
+                // Find next number beginning from the end of the list
+                while (_blockList[counter] == ".")
                 {
-                    _blockList.RemoveAt(_blockList.Count-1);
+                    counter--;
                 }
-                _compactedBlocks.Add(_blockList[_blockList.Count-1]);
-
-                _blockList.RemoveAt(_blockList.Count-1);
+                
+                // Swap elements 
+                if (counter > i)
+                {
+                    (_blockList[i], _blockList[counter]) = (_blockList[counter], _blockList[i]); 
+                    continue;
+                }
+                break;
             }
-            else
-            {
-                _compactedBlocks.Add(_blockList[i]);
-            }
-            //Console.WriteLine(string.Join(", ", _compactedBlocks));
         }
-
-        Console.WriteLine("help");
     }
+    
 
     public string GetPartTwoSolution()
     {
