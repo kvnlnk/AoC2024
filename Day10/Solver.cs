@@ -6,7 +6,8 @@ public class Solver : ISolver
 {
     private readonly List<string> _list;
     private readonly char[,] _grid;
-    private int _counter = 0;
+    private int _counterPart1;
+    private int _counterPart2;
 
     private const string Trail = "0123456789";
 
@@ -46,48 +47,102 @@ public class Solver : ISolver
             {
                 // Find possible beginning of the trail
                 if ((char)_grid.GetValue(i, j)! != Trail[0]) continue;
-
-                if (!CheckDirection(1, i, j)) continue;
+                var positionSet = new HashSet<Position>();
+                if (!CheckDirection(1, i, j, positionSet)) continue;
             }
         }
 
-        return _counter.ToString();
+        return _counterPart1.ToString();
     }
 
     public string GetPartTwoSolution()
     {
-        throw new NotImplementedException();
+
+        for (var i = 0; i < _grid.GetLength(0); i++)
+        {
+            for (var j = 0; j < _grid.GetLength(1); j++)
+            {
+                // Find possible beginning of the trail
+                if ((char)_grid.GetValue(i, j)! != Trail[0]) continue;
+                if (!CheckDirection(1, i, j)) continue;
+            }
+        }
+
+        return _counterPart2.ToString();
     }
 
-    private bool CheckDirection(int nextLetter, int i, int j)
+    private bool CheckDirection(int nextNumber, int i, int j, HashSet<Position> positionSet)
     {
-        // Found word
-        if (nextLetter == Trail.Length)
+        // Found hiking trail
+        if (nextNumber == Trail.Length)
         {
-            _counter++;
+            // Check if highest position was already reached
+            if (positionSet.Contains(new Position { Row = i, Column = j })) return true;
+            _counterPart1++;
+            positionSet.Add(new Position { Row = i, Column = j });
+
             return true;
         }
-        var found = false;
-        // Check next char
+ 
+        // Recursion to check every direction of the hiking trail
         foreach (var direction in _directions)
         {
-            if (Trail[nextLetter] == '4')
-            {
-                Console.WriteLine("asd");
-            }
             if (CheckBounds(i + direction.Row, j + direction.Column) &&
-                Trail[nextLetter] == _grid[i + direction.Row, j + direction.Column])
+                Trail[nextNumber] == _grid[i + direction.Row, j + direction.Column])
             {
-                found = CheckDirection(nextLetter + 1, i + direction.Row, j + direction.Column);
+                CheckDirection(nextNumber + 1, i + direction.Row, j + direction.Column,positionSet);
             }
         }
 
-        return found;
+        return false;
     }
 
+    private bool CheckDirection(int nextNumber, int i, int j)
+    {
+        // Found hiking trail
+        if (nextNumber == Trail.Length)
+        {
+            _counterPart2++;
+            return true;
+        }
+ 
+        // Recursion to check every direction of the hiking trail
+        foreach (var direction in _directions)
+        {
+            if (CheckBounds(i + direction.Row, j + direction.Column) &&
+                Trail[nextNumber] == _grid[i + direction.Row, j + direction.Column])
+            {
+                CheckDirection(nextNumber + 1, i + direction.Row, j + direction.Column);
+            }
+        }
+
+        return false;
+    }
 
     private bool CheckBounds(int i, int j)
     {
         return i >= 0 && i < _grid.GetLength(0) && j >= 0 && j < _grid.GetLength(1);
+    }
+
+
+    internal class Position
+    {
+        public int Row { get; set; }
+        public int Column { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not Position position)
+            {
+                return false;
+            }
+
+            return Row.Equals(position.Row) && Column.Equals(position.Column);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Row, Column);
+        }
     }
 }
