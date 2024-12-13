@@ -8,6 +8,7 @@ public class Solver : ISolver
     private readonly List<string> _list;
     private readonly char[,] _grid;
     private readonly HashSet<Position> _distinctPositions = [];
+    private readonly Position _startingPositionGuard = new();
 
     private readonly Direction[] _directions =
     [
@@ -41,6 +42,8 @@ public class Solver : ISolver
                         Position = new Position { Row = i, Column = j },
                         Direction = _directions[0] // Facing north first
                     };
+                    _startingPositionGuard.Row = i;
+                    _startingPositionGuard.Column = j;
                 }
             }
         }
@@ -57,7 +60,11 @@ public class Solver : ISolver
                     _guard.Position.Column + _directions[directionIndex].Column)! != '#')
             {
                 // Add position to hashset to count distinct positions later
-                _distinctPositions.Add(_guard.Position);
+                _distinctPositions.Add(new Position
+                {
+                    Row = _guard.Position.Row,
+                    Column = _guard.Position.Column
+                });
 
                 // Update position of the guard
                 _guard.Position.Row += _directions[directionIndex].Row;
@@ -70,12 +77,73 @@ public class Solver : ISolver
             }
         }
 
-        return (_distinctPositions.Count + 1).ToString();
+        _distinctPositions.Add(new Position
+        {
+            Row = _guard.Position.Row,
+            Column = _guard.Position.Column
+        });
+        return (_distinctPositions.Count).ToString();
     }
 
     public string GetPartTwoSolution()
     {
-        throw new NotImplementedException();
+        var loopCounter = 0;
+        var fieldAmount = _grid.GetLength(0) * _grid.GetLength(1);
+        
+        foreach (var position in _distinctPositions)
+        {
+            var directionIndex = 0;
+
+
+            if (_startingPositionGuard.Equals(position))
+                continue;
+
+            _grid.SetValue('O', position.Row, position.Column);
+
+            _guard.Position = new Position
+            {
+                Row = _startingPositionGuard.Row,
+                Column = _startingPositionGuard.Column
+            };
+
+            _guard.Direction = _directions[directionIndex];
+
+
+            var positionCounter = 0;
+
+            while (CheckBounds(_guard.Position.Row, _guard.Position.Column))
+            {
+                // Check if # is blocking the way for the guard
+                if (_grid[_guard.Position.Row + _directions[directionIndex].Row,
+                        _guard.Position.Column + _directions[directionIndex].Column] != '#' &&
+                    _grid[_guard.Position.Row + _directions[directionIndex].Row,
+                        _guard.Position.Column + _directions[directionIndex].Column] != 'O')
+                {
+                    // Update position of the guard
+                    _guard.Position.Row += _directions[directionIndex].Row;
+                    _guard.Position.Column += _directions[directionIndex].Column;
+                    _guard.Direction = _directions[directionIndex];
+                }
+                else
+                {
+                    // Change direction if # is blocking the way
+                    directionIndex = (directionIndex + 1) % 4;
+                }
+
+                // Quick and dirty solution... very inefficient and unsafe
+                if (positionCounter > fieldAmount)
+                {
+                    loopCounter++;
+                    break;
+                }
+                
+                positionCounter++;
+            }
+
+            _grid.SetValue('.', position.Row, position.Column);
+        }
+
+        return loopCounter.ToString();
     }
 
     private bool CheckBounds(int i, int j)
