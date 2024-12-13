@@ -4,9 +4,9 @@ namespace AoC2024.Day13;
 
 public class Solver : ISolver
 {
-    
     private readonly List<string> _list;
     private readonly List<ClawMachine> _clawMachines = [];
+
 
     public Solver(List<string> list)
     {
@@ -21,23 +21,11 @@ public class Solver : ISolver
 
         var controlMatrix = new List<int>();
         var prizeLocation = new List<int>();
-        
+
         foreach (var line in _list)
         {
-            if (counter == 3)
-            {
-                _clawMachines.Add(new ClawMachine
-                {
-                    ControlMatrix = new[,] { { controlMatrix[0], controlMatrix[2] }, { controlMatrix[1], controlMatrix[3]} },
-                    PrizeLocation = [prizeLocation[0], prizeLocation[1]]
-                });
+            if (line == string.Empty) continue;
 
-                counter = 0;
-                controlMatrix.Clear();
-                prizeLocation.Clear();
-            }
-            if(line == string.Empty) continue;
-            
             var splitLine = line.Split([":", ",", "+", "="], StringSplitOptions.RemoveEmptyEntries);
 
             switch (splitLine[0])
@@ -52,57 +40,55 @@ public class Solver : ISolver
                     prizeLocation.Add(Convert.ToInt32(splitLine[4]));
                     break;
             }
+
             counter++;
+
+            if (counter == 3)
+            {
+                _clawMachines.Add(new ClawMachine
+                {
+                    ControlMatrix = new[,]
+                        { { controlMatrix[0], controlMatrix[2] }, { controlMatrix[1], controlMatrix[3] } },
+                    PrizeLocation = [prizeLocation[0], prizeLocation[1]]
+                });
+
+                counter = 0;
+                controlMatrix.Clear();
+                prizeLocation.Clear();
+            }
         }
     }
 
-    
+
     public string GetPartOneSolution()
     {
-        var sum = 0;
-
-        foreach (var clawMachine in _clawMachines)
-        {
-            var minCost = int.MaxValue;
-            var x1 = clawMachine.ControlMatrix[0, 0];
-            var x2 = clawMachine.ControlMatrix[1, 0];
-            var y1 = clawMachine.ControlMatrix[0, 1];
-            var y2 = clawMachine.ControlMatrix[1, 1];
-            
-            // Reduce amount of iterations
-            var aMax = x1 > x2 ? x2 : x1;
-            var bMax = y1 > y2 ? y2 : y1;
-            var xPrize = clawMachine.PrizeLocation[0];
-            var yPrize = clawMachine.PrizeLocation[1];
-            
-            
-            for (var a = 0; a < xPrize / aMax; a++)
-            {
-                for (var b = 0; b < yPrize / bMax; b++)
-                {
-                    var xVal = a * x1 + b * y1 ;
-                    var yVal = a * x2 + b * y2;
-                    
-                    if (xVal != xPrize || yVal != yPrize) continue;
-
-                    var cost = a * 3 + b;
-
-                    if (cost < minCost)
-                    {
-                        minCost = cost;
-                    }
-                }
-            }
-            
-            if (minCost == int.MaxValue) continue;
-            sum += minCost;
-        }
-        return sum.ToString();
+        return _clawMachines.Sum(clawMachine => CramersRule(clawMachine, 0)).ToString();
     }
+
 
     public string GetPartTwoSolution()
     {
-        throw new NotImplementedException();
+        return _clawMachines.Sum(clawMachine => CramersRule(clawMachine, 10000000000000)).ToString();
+    }
+
+
+    private long CramersRule(ClawMachine clawMachine, long offset)
+    {
+        var x1 = clawMachine.ControlMatrix[0, 0];
+        var x2 = clawMachine.ControlMatrix[1, 0];
+        var y1 = clawMachine.ControlMatrix[0, 1];
+        var y2 = clawMachine.ControlMatrix[1, 1];
+        var xPrize = clawMachine.PrizeLocation[0] + offset;
+        var yPrize = clawMachine.PrizeLocation[1] + offset;
+
+        var det = x1 * y2 - x2 * y1;
+        var det1 = xPrize * y2 - yPrize * y1;
+        var det2 = x1 * yPrize - x2 * xPrize;
+
+        var x = det1 / det;
+        var y = det2 / det;
+        if (x * x1 + y * y1 != xPrize || x * x2 + y * y2 != yPrize) return 0;
+        return 3 * det1 / det + det2 / det;
     }
 
 
