@@ -102,7 +102,6 @@ public class Solver : ISolver
             {
                 if (CheckForFreeSpace(direction, _robot.Position.Y + 2 * direction.Row, _robot.Position.X + 2 * direction.Column))
                 {
-                    Console.WriteLine("Free");
                     _grid[_robot.Position.Y, _robot.Position.X] = '.';
                     _robot.Position.Y += direction.Row;
                     _robot.Position.X += direction.Column;
