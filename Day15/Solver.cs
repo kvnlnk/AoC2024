@@ -1,4 +1,5 @@
-﻿using AoC2024.Common;
+﻿using System.Runtime.Intrinsics.X86;
+using AoC2024.Common;
 
 namespace AoC2024.Day15;
 
@@ -8,6 +9,7 @@ public class Solver : ISolver
     private readonly List<char> _moves = [];
     private readonly List<string> _map = [];
     private readonly char[,] _grid;
+    private Position _freeAtPosition;
     private Robot _robot;
 
 
@@ -88,40 +90,53 @@ public class Solver : ISolver
         
         foreach (var move in _moves)
         {
-            for (var i = 0; i < _grid.GetLength(0); i++)
-            {
-                for (var j = 0; j < _grid.GetLength(1); j++)
-                {
-                    Console.Write(_grid[i, j]);
-                }
-
-                Console.WriteLine();
-            }
-
-            Console.WriteLine("NEW MOVE::");
             var direction = GetDirection(move);
+            
+            // Skip to next iteration if # is blocking the way
             if ((char)_grid.GetValue(_robot.Position.Y + direction.Row,
                     _robot.Position.X + direction.Column)! == '#') continue;
-            else if ((char)_grid.GetValue(_robot.Position.Y + direction.Row,
-                         _robot.Position.X + direction.Column)! == 'O')
+            
+            // Check for free space if O is blocking the way
+            if ((char)_grid.GetValue(_robot.Position.Y + direction.Row,
+                    _robot.Position.X + direction.Column)! == 'O')
             {
                 if (CheckForFreeSpace(direction, _robot.Position.Y + 2 * direction.Row, _robot.Position.X + 2 * direction.Column))
                 {
+                    Console.WriteLine("Free");
+                    _grid[_robot.Position.Y, _robot.Position.X] = '.';
+                    _robot.Position.Y += direction.Row;
+                    _robot.Position.X += direction.Column;
+                    _grid[_robot.Position.Y, _robot.Position.X] = '@';
+                    _grid[_freeAtPosition.Y, _freeAtPosition.X] = 'O';
                     
                 }
             }
             else
             {
+                // Move robot to next spot
                 _grid[_robot.Position.Y, _robot.Position.X] = '.';
                 _robot.Position.Y += direction.Row;
                 _robot.Position.X += direction.Column;
                 _grid[_robot.Position.Y, _robot.Position.X] = '@';
             }
-        }
 
+        }
+        
+        // Get sum of all boxes' GPS coordinates
+        for (var i = 0; i < _grid.GetLength(0); i++)
+        {
+            for (var j = 0; j < _grid.GetLength(1); j++)
+            {
+                if (_grid[i, j] == 'O')
+                {
+                    sum += i * 100 + j;
+                }
+            }
+        }
         return sum.ToString();
     }
 
+    
     public string GetPartTwoSolution()
     {
         throw new NotImplementedException();
@@ -134,6 +149,11 @@ public class Solver : ISolver
         {
             if ((char)_grid.GetValue(y, x)! == '.')
             {
+                _freeAtPosition = new Position
+                {
+                    X = x,
+                    Y = y
+                };
                 return true;
             }
 
@@ -150,6 +170,7 @@ public class Solver : ISolver
         }
     }
 
+    
     private Direction GetDirection(char move)
     {
         return move switch
