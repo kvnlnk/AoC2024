@@ -64,12 +64,9 @@ public class Solver : ISolver
         foreach (var connectedField in _connectedFields)
         {
             var corners = 0;
-            var found1 = false;
-            var found2 = false;
-            var found3 = false;
-            var found4 = false;
             foreach (var field in connectedField)
             {
+
                 var sum = 0;
                 if (field is { North: false, East: false })
                 {
@@ -91,38 +88,44 @@ public class Solver : ISolver
                     sum++;
                 }
 
-                var neighborFieldBottomRight =
-                    connectedField.Find(f => f.Row == field.Row + 1 && f.Column == field.Column + 1);
+                var neighborFieldBottomRight = connectedField.Find(f => f.Row == field.Row + 1 && f.Column == field.Column + 1);
+                var neighborFieldRight = connectedField.Find(f => f.Row == field.Row && f.Column == field.Column + 1);
+                var neighborFieldBottom = connectedField.Find(f => f.Row == field.Row + 1 && f.Column == field.Column);
+                var neighborFieldBottomLeft = connectedField.Find(f => f.Row == field.Row + 1 && f.Column == field.Column - 1);
+                var neighborFieldLeft = connectedField.Find(f => f.Row == field.Row && f.Column == field.Column - 1);
+                
+                if (field is { South: false } && neighborFieldBottomRight is { West: false } &&
+                    neighborFieldRight != null &&
+                    field.Name.Equals(neighborFieldRight.Name))
+                {
+                    sum++;
+                }
 
-                if (field is { South: false } && neighborFieldBottomRight is { West: false } && !found1 && !found3)
+                if (field is { East: false } && neighborFieldBottomRight is { North: false } &&
+                    neighborFieldBottom != null &&
+                    field.Name.Equals(neighborFieldBottom.Name) )
                 {
                     sum++;
-                    found1 = true;
                 }
-                else if (field is { West: false } && neighborFieldBottomRight is { North: false } && !found2 && !found4)
+                
+                if (field is { West: false } && neighborFieldBottomLeft is { North: false } &&
+                    neighborFieldBottom != null &&
+                    field.Name.Equals(neighborFieldBottom.Name))
                 {
                     sum++;
-                    found2 = true;
                 }
 
-                var neighborFieldTopLeft =
-                    connectedField.Find(f => f.Row == field.Row - 1 && f.Column == field.Column - 1);
-                if (field is { West: false } && neighborFieldTopLeft is { South: false } && !found3 && !found1)
+                if (field is { South: false } && neighborFieldBottomLeft is { East: false } &&
+                    neighborFieldLeft != null &&
+                    field.Name.Equals(neighborFieldLeft.Name))
                 {
                     sum++;
-                    found3 = true;
-                }
-                else if (field is { North: false } && neighborFieldTopLeft is { East: false } && !found4 && !found2)
-                {
-                    sum++;
-                    found4 = true;
                 }
 
                 corners += sum;
             }
 
             totalSum += corners * connectedField.Count;
-            Console.WriteLine(corners);
         }
 
         return totalSum.ToString();
